@@ -52,24 +52,27 @@ def get_tasks_list(id):
     conn.close()
     return [t, i]
 
-def get_archived_tasks():
+def get_archived_tasks(d_id):
     conn, c = get_db_connection()
     try:
-        c.execute("select id, title from archived_tasks")
+        c.execute("select id, title from archived_tasks where d_id=?", (d_id,))
         res = c.fetchall()
         i = [a[0] for a in res]
         t = [a[1] for a in res]
     except Exception as e:
         print(e)
+        i=[]
+        t=[]
     conn.commit()
     c.close()
     conn.close()
     return [t, i]
 
-def get_archived_task(id):
+
+def get_task(id, db):
     conn, c = get_db_connection()
     try:
-        c.execute("select * from archived_tasks where id=?",(id,))
+        c.execute("select d_id,title,comment from {} where id=?".format(db),(id,))
         res = c.fetchone()
     except Exception as e:
         print(e)
@@ -135,7 +138,9 @@ def toggle_status(id, status):
 def add(value, sql):
     conn, c = get_db_connection()
     try:
-        c.execute(sql, (value,))
+        print("adding", sql)
+        c.execute(sql, value)
+        print("added", sql)
     except Exception as e:
         print(e)
     conn.commit()
@@ -200,4 +205,4 @@ def backup(name=None):
 
 
 if __name__ == "__main__":
-    pass
+    add(value, sql)

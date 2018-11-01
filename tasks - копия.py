@@ -2,9 +2,8 @@ import datetime
 from tkinter import *
 from tkinter import ttk, messagebox
 from modal import Modal
-from archived_tasks import ArchivedTasksWindow
 from sql_utils import (get_tasks_list,
-get_comments,update_comment,del_task,get_task,add, delete)
+get_comments,update_comment,del_task,)
 
 
 class TasksWindow(ttk.Frame):
@@ -34,7 +33,6 @@ class TasksWindow(ttk.Frame):
         for i in tasks:
             self.tasks_list.insert(END, i)
         self.comments_field.delete('1.0', END)
-        self.t_id = None
 
     def fill_comments(self, index):
         self.comments_field.delete('1.0', END)
@@ -49,8 +47,7 @@ class TasksWindow(ttk.Frame):
         self.tasks_list.bind("<Button-1>", self.handle_task_click)
         self.add_task.bind("<Button-1>",  self.handle_add_task)
         self.edit_task.bind("<Button-1>", self.handle_edit_task)
-        self.archive_task.bind("<Button-1>", self.handle_archive_task)
-        self.show_archive.bind("<Button-1>", self.handle_show_archive)
+        self.delete_task.bind("<Button-1>", self.handle_delete_task)
         self.update_button.bind("<Button-1>", self.handle_update_comment)
         self.add_date_button.bind("<Button-1>", self.add_date)
 
@@ -76,10 +73,8 @@ class TasksWindow(ttk.Frame):
         self.add_task.pack(side=LEFT)
         self.edit_task = ttk.Button(self.task_butt_frame, text="...", width=3)
         self.edit_task.pack(side=LEFT)
-        self.archive_task = ttk.Button(self.task_butt_frame, text="В архив")
-        self.archive_task.pack(side=LEFT)
-        self.show_archive = ttk.Button(self.task_butt_frame, text="Архив задач")
-        self.show_archive.pack(side=LEFT)
+        self.delete_task = ttk.Button(self.task_butt_frame, text="X", width=3)
+        self.delete_task.pack(side=LEFT)
 
         self.comments_frame = ttk.LabelFrame(
             self,
@@ -134,25 +129,19 @@ class TasksWindow(ttk.Frame):
             messagebox.showinfo("Информация", "Выберите задачу")
         
 
-    def handle_archive_task(self, e):
+    def handle_delete_task(self, e):
         if self.t_id:
-            values = get_task(self.t_id, "tasks")
-            print(values)
-            sql = "insert into archived_tasks(d_id,title,comment) values(?,?,?)"
-            add(values, sql)
-            del_sql = "delete from tasks where id={}".format(self.t_id)
-            delete(del_sql)
-            self.fill_tasks(self.d_id)
-        else:
-            messagebox.showinfo("Информация", "Выберите задачу")
-    
-    def handle_show_archive(self, e):
-        if self.d_id:
             dialog = Toplevel()
-            a_t = ArchivedTasksWindow(master=dialog, parent=self, d_id=self.d_id)
+            d_t = Modal(
+                dialog,
+                role="delete",
+                table="tasks",
+                t_id=self.t_id,
+                parent=self
+            )
             dialog.mainloop()
         else:
-            messagebox.showinfo("Информация", "Ошибка прибора")
+            messagebox.showinfo("Информация", "Выберите задачу")
 
     def handle_update_comment(self, e):
         if self.t_id:

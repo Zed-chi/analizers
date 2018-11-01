@@ -105,7 +105,7 @@ class Modal(ttk.Frame):
         sql = self.create_sql()
         value = self.entry.get()
         if value:
-            add(value, sql)
+            add((value,), sql)
         if self.table == "tasks":
             self.parent.fill_tasks(self.d_id)
         else:
@@ -125,9 +125,9 @@ class Modal(ttk.Frame):
 
     def delete_handler(self, e):
         sql = self.create_sql()
-        if self.table == "tasks":
+        if self.table == "archived_tasks":
             delete(sql)
-            self.parent.fill_tasks(self.parent.d_id)
+            self.parent.fill_tasks()
         else:
             t_ids = get_tasks_list(self.d_id)[1]
             del_task(self.d_id)

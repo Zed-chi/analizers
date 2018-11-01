@@ -2,12 +2,13 @@ from tkinter import *
 from tkinter import ttk, messagebox
 from modal import Modal
 from sql_utils import (get_tasks_list,
-get_comments,update_comment,del_task,get_archived_tasks, get_archived_task)
+get_comments,update_comment,del_task,get_archived_tasks, get_task, add, delete)
 
 class ArchivedTasksWindow(ttk.Frame):
-    def __init__(self, parent, master=None):
+    def __init__(self, parent=None, d_id=None, master=None):
         super().__init__(master, padding=2)
         self.parent = parent
+        self.d_id = d_id
         self.pack(expand=True, fill=BOTH)
         self.create_variables()
         self.create_widgets()
@@ -23,13 +24,15 @@ class ArchivedTasksWindow(ttk.Frame):
         sh = (self.winfo_screenheight()/2)-(h/2)
         self.master.geometry("{}x{}+{}+{}".format(w, h, int(sw), int(sh)))
 
-    def fill_tasks(self):
-        if self.tasks_list.size() > 0:
-            self.tasks_list.delete(0, END)
-        tasks, self.task_ids = get_archived_tasks()
-        print("=>got tasks")
-        for i in tasks:
-            self.tasks_list.insert(END, i)
+    def fill_tasks(self, d_id=None):
+        if self.d_id != None:
+            if self.tasks_list.size() > 0:
+                self.tasks_list.delete(0, END)
+            tasks, self.task_ids = get_archived_tasks(self.d_id)
+            print("=>got tasks",tasks)
+            for i in tasks:
+                self.tasks_list.insert(END, i)
+            self.t_id = None
 
     def create_variables(self):
         self.t_id = None
@@ -57,7 +60,10 @@ class ArchivedTasksWindow(ttk.Frame):
             text="inner frame"
         )
         self.task_butt_frame.pack()
-        self.restore_task = ttk.Button(self.task_butt_frame, text="Восстановить")
+        self.restore_task = ttk.Button(
+            self.task_butt_frame,
+            text="Восстановить"
+        )
         self.restore_task.pack(side=LEFT)
         self.delete_task = ttk.Button(self.task_butt_frame, text="Удалить")
         self.delete_task.pack(side=LEFT)
@@ -69,19 +75,21 @@ class ArchivedTasksWindow(ttk.Frame):
             self.t_id = self.task_ids[i]
 
     def handle_restore_task(self, e):
-        if self.t_id:
-            values = get_archived_task(self.t_id)
-            sql = "insert into tasks(d_id,title,comment) values(?,?,?,?)"
+        if self.t_id != None:
+            values = get_task(self.t_id, "archived_tasks")
+            sql = "insert into tasks(d_id,title,comment) values(?,?,?)"
             add(values, sql)
-            self.parent.fill_task()
-            del_sql = "delete from archived_tasks where id = {}".format(self.t_id)
+            self.parent.fill_tasks(self.d_id)
+            del_sql = """delete from archived_tasks
+where id = {}""".format(self.t_id)
             delete(del_sql)
             self.fill_tasks()
+            
         else:
             messagebox.showinfo("Информация", "Выберите задачу")
 
     def handle_delete_task(self, e):
-        if self.t_id:
+        if self.t_id != None:
             dialog = Toplevel()
             d_t = Modal(
                 dialog,
