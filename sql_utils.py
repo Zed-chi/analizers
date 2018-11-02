@@ -31,6 +31,8 @@ def get_devices_list():
         d = [a[0] for a in res]
         i = [a[1] for a in res]
     except Exception as e:
+        d=None
+        i=None
         print(e)
     conn.commit()
     c.close()
@@ -205,4 +207,4 @@ def backup(name=None):
 
 
 if __name__ == "__main__":
-    add(value, sql)
+    pass

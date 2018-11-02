@@ -76,7 +76,7 @@ class TasksWindow(ttk.Frame):
         self.add_task.pack(side=LEFT)
         self.edit_task = ttk.Button(self.task_butt_frame, text="...", width=3)
         self.edit_task.pack(side=LEFT)
-        self.archive_task = ttk.Button(self.task_butt_frame, text="В архив")
+        self.archive_task = ttk.Button(self.task_butt_frame, text="-> В архив")
         self.archive_task.pack(side=LEFT)
         self.show_archive = ttk.Button(self.task_butt_frame, text="Архив задач")
         self.show_archive.pack(side=LEFT)
